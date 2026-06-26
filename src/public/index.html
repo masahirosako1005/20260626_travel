@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>旅のつづき</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div>
+    <h1>🧳 旅のつづき</h1>
+  </div>
+  <a href="/admin" style="color:white;font-size:12px;text-decoration:none;opacity:0.8;">管理画面 →</a>
+</header>
+
+<div class="user-selector-bar">
+  <label for="userSelect">ユーザー：</label>
+  <select id="userSelect">
+    <option value="">ユーザーを選択してください</option>
+  </select>
+</div>
+
+<div class="main-content">
+  <!-- ホーム -->
+  <div id="sec-home" class="section active">
+    <div id="homeContent"><div class="loading">ユーザーを選択してください</div></div>
+  </div>
+
+  <!-- 旅のリプレイ -->
+  <div id="sec-replay" class="section">
+    <div class="section-title">📖 旅のリプレイ</div>
+    <div id="replayContent"><div class="loading">ユーザーを選択してください</div></div>
+  </div>
+
+  <!-- 未完了一覧 -->
+  <div id="sec-incomplete" class="section">
+    <div class="section-title">📋 未完了一覧</div>
+    <div id="incompleteContent"><div class="loading">ユーザーを選択してください</div></div>
+  </div>
+
+  <!-- おすすめルート -->
+  <div id="sec-routes" class="section">
+    <div class="section-title">🗺️ おすすめルート</div>
+    <div id="routesContent"><div class="loading">ユーザーを選択してください</div></div>
+  </div>
+
+  <!-- 愛着スコア -->
+  <div id="sec-attachment" class="section">
+    <div class="section-title">⭐ 地域愛着スコア</div>
+    <div id="attachmentContent"><div class="loading">ユーザーを選択してください</div></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="switchTab('home')">
+    <span class="nav-icon">🏠</span>ホーム
+  </button>
+  <button class="nav-item" onclick="switchTab('replay')">
+    <span class="nav-icon">📖</span>旅の記録
+  </button>
+  <button class="nav-item" onclick="switchTab('incomplete')">
+    <span class="nav-icon">📋</span>未完了
+  </button>
+  <button class="nav-item" onclick="switchTab('routes')">
+    <span class="nav-icon">🗺️</span>おすすめ
+  </button>
+  <button class="nav-item" onclick="switchTab('attachment')">
+    <span class="nav-icon">⭐</span>愛着スコア
+  </button>
+</nav>
+
+<!-- スポット詳細モーダル -->
+<div id="spotModal" class="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="spotModalContent"></div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>旅のつづき 管理画面</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-sidebar {
+      width: 200px;
+      background: #2d2414;
+      color: white;
+      padding: 16px 0;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-logo { padding: 8px 16px 16px; font-size: 15px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px; }
+    .sidebar-item {
+      display: block;
+      padding: 10px 16px;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-size: 13px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar-item.active { border-left: 3px solid var(--primary); }
+    .admin-main { flex: 1; padding: 24px; min-width: 0; }
+    .admin-section { display: none; }
+    .admin-section.active { display: block; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .kpi-card { background: white; border-radius: 12px; padding: 16px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+    .kpi-value { font-size: 28px; font-weight: 800; color: var(--primary); }
+    .kpi-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f5ede0; padding: 10px 12px; text-align: left; font-weight: 700; color: var(--text-muted); font-size: 12px; }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    tr:hover td { background: #faf5ee; }
+    .table-wrap { overflow-x: auto; background: white; border-radius: 12px; box-shadow: var(--shadow); }
+    .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .admin-title { font-size: 20px; font-weight: 800; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 5px; color: var(--text-muted); }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .upload-area {
+      border: 2px dashed var(--primary-light);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      background: #fff8f0;
+      transition: all 0.15s;
+    }
+    .upload-area:hover { background: #fff3e6; border-color: var(--primary); }
+    .result-box { background: #f5f5f5; border-radius: 8px; padding: 14px; font-size: 13px; font-family: monospace; white-space: pre-wrap; margin-top: 12px; max-height: 200px; overflow-y: auto; }
+    .badge { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+    .badge-type { background: #f0e6ff; color: #6a30b0; }
+    .rank-num { font-size: 18px; font-weight: 800; color: var(--primary); text-align: center; }
+    .chart-bar { height: 10px; background: var(--primary-light); border-radius: 99px; margin-top: 4px; }
+    .chart-bar-inner { height: 100%; background: var(--primary); border-radius: 99px; }
+    .top-mobile { display: none; }
+    @media(max-width:700px) {
+      .admin-sidebar { display: none; }
+      .top-mobile { display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px; background: #2d2414; }
+      .top-mobile button { color: white; background: rgba(255,255,255,0.15); border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+      .admin-main { padding: 12px; }
+    }
+    .dot-type { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+  </style>
+</head>
+<body style="background:var(--bg);">
+
+<div class="admin-layout">
+  <nav class="admin-sidebar">
+    <div class="sidebar-logo">🧳 旅のつづき<br><span style="font-size:11px;opacity:0.6;">管理画面</span></div>
+    <button class="sidebar-item active" onclick="adminTab('dashboard')">📊 ダッシュボード</button>
+    <button class="sidebar-item" onclick="adminTab('import')">📥 JSONインポート</button>
+    <button class="sidebar-item" onclick="adminTab('spots')">📍 スポット管理</button>
+    <button class="sidebar-item" onclick="adminTab('rallies')">🏅 ラリー管理</button>
+    <button class="sidebar-item" onclick="adminTab('benefits')">🎁 特典管理</button>
+    <button class="sidebar-item" onclick="adminTab('revisit')">🔔 再訪候補</button>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:12px 0;">
+    <a href="/" style="display:block;padding:10px 16px;color:rgba(255,255,255,0.5);font-size:12px;text-decoration:none;">← 利用者画面へ</a>
+  </nav>
+
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0;">
+    <div class="top-mobile" id="mobileNav">
+      <button onclick="adminTab('dashboard')">📊 KPI</button>
+      <button onclick="adminTab('import')">📥 インポート</button>
+      <button onclick="adminTab('spots')">📍 スポット</button>
+      <button onclick="adminTab('rallies')">🏅 ラリー</button>
+      <button onclick="adminTab('benefits')">🎁 特典</button>
+      <button onclick="adminTab('revisit')">🔔 再訪</button>
+    </div>
+
+    <main class="admin-main">
+
+      <!-- ダッシュボード -->
+      <div id="admin-dashboard" class="admin-section active">
+        <div class="admin-header">
+          <div class="admin-title">📊 ダッシュボード</div>
+          <button class="btn btn-outline btn-sm" onclick="loadDashboard()">更新</button>
+        </div>
+        <div id="dashboardContent"><div class="loading">読み込み中...</div></div>
+      </div>
+
+      <!-- JSONインポート -->
+      <div id="admin-import" class="admin-section">
+        <div class="admin-header"><div class="admin-title">📥 JSONインポート</div></div>
+        <div class="card">
+          <div style="margin-bottom:16px;font-size:14px;color:var(--text-muted);">JSONファイルをアップロードするか、同梱のdata.jsonを直接インポートできます。</div>
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('jsonFile').click()">
+            <div style="font-size:36px;margin-bottom:8px;">📁</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px;">JSONファイルをクリックして選択</div>
+            <div style="font-size:12px;color:var(--text-muted);">UTF-8形式のJSONファイル (最大20MB)</div>
+          </div>
+          <input type="file" id="jsonFile" accept=".json" style="display:none" onchange="handleFileSelect(this)">
+          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="importBtn" onclick="doImport()" disabled>インポート実行</button>
+            <button class="btn btn-outline" onclick="loadDefaultData()">📂 data.json をインポート</button>
+          </div>
+          <div id="importResult"></div>
+        </div>
+      </div>
+
+      <!-- スポット管理 -->
+      <div id="admin-spots" class="admin-section">
+        <div class="admin-header">
+          <div class="admin-title">📍 スポット管理</div>
+          <button class="btn btn-primary btn-sm" onclick="showSpotForm()">＋ 追加</button>
+        </div>
+        <div id="spotFormArea" style="display:none;" class="card" style="margin-bottom:16px;">
+          <div style="font-weight:700;margin-bottom:12px;" id="spotFormTitle">スポット追加</div>
+          <div class="form-row">
+            <div class="form-group"><label>スポットID *</label><input id="f_spot_id" placeholder="S013"></div>
+            <div class="form-group"><label>スポット名 *</label><input id="f_name" placeholder="城址公園"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>カテゴリ *</label>
+              <select id="f_category">
+                <option>歴史・文化</option><option>自然・景観</option><option>グルメ</option><option>買い物</option>
+                <option>体験・アクティビティ</option><option>温泉・宿泊</option><option>ファミリー向け</option><option>地元民おすすめ</option>
+              </select>
+            </div>
+            <div class="form-group"><label>エリア *</label><input id="f_area" placeholder="中央"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>標準滞在時間(分)</label><input id="f_avg_minutes" type="number" value="30"></div>
+            <div class="form-group"><label>説明文</label><input id="f_description" placeholder="任意"></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary btn-sm" onclick="saveSpot()">保存</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('spotFormArea').style.display='none'">キャンセル</button>
+          </div>
+        </div>
+        <div class="table-wrap"><table id="spotsTable">
+          <thead><tr><th>ID</th><th>名前</th><th>カテゴリ</th><th>エリア</th><th>滞在(分)</th><th>操作</th></tr></thead>
+          <tbody id="spotsBody"><tr><td colspan="6" style="text-align:center;color:var(--text-muted);">読み込み中...</td></tr></tbody>
+        </table></div>
+      </div>
+
+      <!-- ラリー管理 -->
+      <div id="admin-rallies" class="admin-section">
+        <div class="admin-header"><div class="admin-title">🏅 ラリー管理</div></div>
+        <div id="ralliesContent"><div class="loading">読み込み中...</div></div>
+      </div>
+
+      <!-- 特典管理 -->
+      <div id="admin-benefits" class="admin-section">
+        <div class="admin-header"><div class="admin-title">🎁 特典管理</div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>ID</th><th>名前</th><th>カテゴリ</th><th>対象スポット</th><th>想定価値</th></tr></thead>
+          <tbody id="benefitsBody"><tr><td colspan="5" style="text-align:center;color:var(--text-muted);">読み込み中...</td></tr></tbody>
+        </table></div>
+      </div>
+
+      <!-- 再訪候補 -->
+      <div id="admin-revisit" class="admin-section">
+        <div class="admin-header">
+          <div class="admin-title">🔔 再訪候補ユーザー</div>
+          <button class="btn btn-outline btn-sm" onclick="loadRevisit()">更新</button>
+        </div>
+        <div id="revisitContent"><div class="loading">読み込み中...</div></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/admin.js"></script>
+</body>
+</html>
